@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "vela-allocator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "vela-allocator.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "vela-allocator.labels" . | nindent 6 }}
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: {{ .Values.serviceMonitor.interval }}

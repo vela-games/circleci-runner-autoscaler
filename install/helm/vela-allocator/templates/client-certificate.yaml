@@ -1,0 +1,27 @@
+{{- if .Values.certificates.client.enabled -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "vela-allocator.fullname" . }}-client
+  labels:
+    {{- include "vela-allocator.labels" . | nindent 4 }}
+spec:
+  commonName: {{ .Values.certificates.client.commonName }}
+  {{- with .Values.certificates.client.dnsNames }}
+  dnsNames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  usages:
+    - digital signature
+    - key encipherment
+    - server auth
+    - client auth
+  issuerRef:
+    kind: ClusterIssuer
+    name: {{ .Values.certificates.client.issuerName }}
+  secretName: {{ .Values.certificates.client.secretName }}
+  {{- with .Values.certificates.client.secretTemplate }}
+  secretTemplate:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end -}}

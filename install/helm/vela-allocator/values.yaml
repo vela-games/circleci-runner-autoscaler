@@ -1,0 +1,82 @@
+# Default values for rm-api.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+replicaCount: 1
+
+livenessProbe:
+  httpGet:
+    path: /live
+    port: 8080
+  initialDelaySeconds: 3
+  periodSeconds: 3
+  failureThreshold: 3
+  timeoutSeconds: 1
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+
+podAnnotations: {}
+podSecurityContext: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+service:
+  type: ClusterIP
+  annotations: {}
+
+securityContext: {}
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+environmentVariables: []
+
+resources: {}
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+
+
+image:
+  awsAccountId: "704345382326"
+  region: eu-central-1
+  prefix: vela-games/vela-allocator
+  pullPolicy: Always
+  tag: test
+
+secrets:
+  enabled: false
+  vaultRole: 'secrets-and-certs'
+  vaultAddress: 'https://vault.infraservices.velagames.net'
+  vaultKubernetesMountPath: 'k8s-dev-core-projectv-01-eu-west-1'
+
+  objects: []
+
+ingressInternal:
+  enabled: false
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internal
+  class: "alb"
+  host: "allocator.eu-west-1.core.velagames.net"
+      
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""

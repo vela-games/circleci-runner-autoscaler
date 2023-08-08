@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vela-allocator.fullname" . }}
+  labels:
+    {{- include "vela-allocator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "vela-allocator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "vela-allocator.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "vela-allocator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: vela-allocator
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{- include "vela-allocator.image" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+            {{- include "vela-allocator.grpcPort" . | nindent 12 }}
+          env:
+            - name: ALLOCATOR_NODE_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            {{- include "vela-allocator.secretStoreSecretEnv" . | nindent 12 }}
+            {{- with .Values.environmentVariables }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- include "vela-allocator.volumeMounts" . | nindent 10 }}
+      {{- include "vela-allocator.volumes" . | nindent 6 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
