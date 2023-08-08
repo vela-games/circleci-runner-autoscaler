@@ -1,0 +1,16 @@
+{{- if .Values.serviceAccount.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "circleci-runner-autoscaler.fullname" . }}
+  labels:
+    {{- include "circleci-runner-autoscaler.labels" . | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "circleci-runner-autoscaler.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "circleci-runner-autoscaler.fullname" . }}
+{{- end }}

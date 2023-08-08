@@ -1,0 +1,158 @@
+openapi: "3.0.0"
+info:
+  description: "This is the API definition for CircleCI self-hosted runners"
+  version: "0.0.1"
+  title: "CircleCI Self hosted runner API"
+servers:
+  - url: "https://runner.circleci.com/api/v2"
+    description: "CircleCI API v2"
+paths:
+  /runner:
+    get:
+      summary: "Get list of runners"
+      operationId: "getRunners"
+      parameters:
+      - in: query
+        name: resource-class
+        schema:
+          type: string
+        description: filters the list of self-hosted runners by specific resource class.
+        required: false
+      - in: query
+        name: namespace
+        schema:
+          type: string
+        description: filters the list of self-hosted runners by namespace
+        required: false
+      responses:
+        '200':
+          description: List of runners
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentList'
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '401':
+          $ref: '#/components/responses/GenericError'
+  /tasks:
+    get:
+      summary: "Get number of unclaimed tasks"
+      operationId: "getUnclaimedTasks"
+      parameters:
+      - in: query
+        name: resource-class
+        schema:
+          type: string
+        description: filters tasks by specific resource class.
+        required: true
+      responses:
+        '200':
+          description: Number of unclaimed tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnclaimedTaskCount'
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '401':
+          $ref: '#/components/responses/GenericError'
+  /tasks/running:
+    get:
+      summary: "Get number of running tasks"
+      operationId: "getRunningTasks"
+      parameters:
+      - in: query
+        name: resource-class
+        schema:
+          type: string
+        description: filters tasks by specific resource class.
+        required: true
+      responses:
+        '200':
+          description: Number of unclaimed tasks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnclaimedTaskCount'
+        '400':
+          $ref: '#/components/responses/GenericError'
+        '401':
+          $ref: '#/components/responses/GenericError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Circle-Token
+  
+  responses:
+    GenericError:
+      description: GenericError
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: "Error message"
+          
+    UnclaimedTaskCount:
+      type: object
+      properties:
+        unclaimed_task_count:
+          type: integer
+    
+    RunningTaskCount:
+      type: object
+      properties:
+        running_runner_tasks:
+          type: integer
+
+    AgentList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+    Agent:
+      type: "object"
+      properties:
+        resource_class:
+          type: "string"
+          description: "Resource class for runner"
+        hostname:
+          type: "string"
+          description: "Hostname for runner"
+        name:
+          type: "string"
+          description: "Name of runner (instance id)"
+        first_connected:
+          type: "string"
+          format: "date-time"
+          description: "Timestamp of runner first connection"
+        last_connected:
+          type: "string"
+          format: "date-time"
+          description: "Timestamp of runner last connection"
+        last_used:
+          type: "string"
+          format: "date-time"
+          description: "Timestamp of runner last job run"
+        version:
+          type: "string"
+          description: "CircleCI Agent Version"
+
+security:
+  - ApiKeyAuth: []
+
+externalDocs:
+  description: "Find out more about CircleCI Runner API"
+  url: "https://circleci.com/docs/2.0/runner-api/index.html"

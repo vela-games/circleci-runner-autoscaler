@@ -1,0 +1,7 @@
+apiVersion: v2
+name: circleci-runner-autoscaler
+description: A Helm chart for circleci-runner-autoscaler
+
+type: application
+version: 0.0.1
+appVersion: "0.0.1"
